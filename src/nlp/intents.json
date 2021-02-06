@@ -1,0 +1,22 @@
+{
+    "greeting": {
+        "patterns": [
+            "hello",
+            "hi"
+        ],
+        "responses": [
+            "Hello!",
+            "How are you?"
+        ]
+    },
+    "farewell": {
+        "patterns": [
+            "bye",
+            "goodbye"
+        ],
+        "responses": [
+            "Bye",
+            "See you next time"
+        ]
+    }
+}
