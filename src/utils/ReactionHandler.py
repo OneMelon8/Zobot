@@ -9,7 +9,7 @@ import discord
 class ReactionHandler:
     """ Dynamic reaction handler, create a new instance and register every time ON_REACT is needed """
 
-    def __init__(self, author, message, emotes, react_callback, timeout_callback, timeout=30, user_lock=False):
+    def __init__(self, author, message, emotes, react_callback, timeout_callback=None, timeout=30, user_lock=False):
         """
         Constructs a dynamic reaction handler, times out automatically after a set duration
 
@@ -46,7 +46,7 @@ class ReactionHandler:
         if self.react_callback is None or (user != self.author and self.user_lock):
             return False
 
-        self.react_callback(self.author, user, emote, self.message, self.message.channel, self.message.guild)
+        await self.react_callback(self.author, user, emote, self.message, self.message.channel, self.message.guild)
         return True
 
     async def on_timeout(self):
@@ -54,7 +54,7 @@ class ReactionHandler:
         # Not really sure about what parameters to put here...?
         if self.timeout_callback is None:
             return
-        self.timeout_callback(self.author, self.message, self.message.channel, self.message.guild)
+        await self.timeout_callback(self.author, self.message, self.message.channel, self.message.guild)
 
     def __str__(self):
         return f"Reaction handler for \"{self.emojis}\""

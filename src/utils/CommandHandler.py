@@ -60,10 +60,10 @@ class CommandHandler:
 
         if self.aliases:
             embedded.add_field(name="**Aliases:**", value=f"> {Config.SEP.join(self.aliases)}", inline=False)
-        if self.usage:
-            embedded.add_field(name="**Usage:**", value=f"> {self.usage}", inline=False)
-        if self.example:
-            embedded.add_field(name="**Example:**", value=f"> {self.example}", inline=False)
+        usage = self.usage if self.usage else f"{Config.BOT_PREFIX}{self.command}"
+        embedded.add_field(name="**Usage:**", value=f"> {usage}", inline=False)
+        example = self.example if self.example else f"{Config.BOT_PREFIX}{self.command}"
+        embedded.add_field(name="**Example:**", value=f"> {example}", inline=False)
 
         return embedded
 

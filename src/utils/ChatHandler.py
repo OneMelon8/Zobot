@@ -1,15 +1,11 @@
 # Built-in imports
-import random
-import pickle
 
 # Project imports
 from src.data import Color, Config
+from src.nlp import PrimitiveModel
 
 # External imports
 import discord
-import nltk
-from nltk.stem.lancaster import LancasterStemmer
-import numpy as np
 
 
 class ChatHandler:
@@ -24,7 +20,7 @@ class ChatHandler:
         """
         self.bot = bot
 
-        self.stemmer = LancasterStemmer()
+        self.initialize_nlp()
 
     async def on_message(self, author, message, channel, guild):
         """
@@ -37,10 +33,15 @@ class ChatHandler:
             guild (discord.Guild): guild that the message is sent in
         """
 
-        await channel.send("WIP", reference=message, mention_author=False)
+        raw_message = message.content
+        response = PrimitiveModel.predict(raw_message)
+        await channel.send(response, reference=message, mention_author=False)
 
-    def load_model(self):
-        pass
+    def initialize_nlp(self):
+        self.bot.log(1, "Loading NLP data... ", print_footer=False)
+        PrimitiveModel.load_or_generate_data(force_generate=True)
+        self.bot.log(1, "OK!", print_header=False)
 
-    def bag_of_words(self, message, word_bank):
-        pass
+        self.bot.log(1, "Training model...")
+        PrimitiveModel.create_and_train_model()
+        self.bot.log(1, "Training complete! Model is now ready to be used!")

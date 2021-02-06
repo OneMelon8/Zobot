@@ -25,6 +25,7 @@ class BotClient(discord.Client):
 
         # Chat handler
         self.chat_handler = None
+        self.chat_enabled = False
 
         self.log(0, " OK", print_header=False)
 
@@ -52,8 +53,8 @@ class BotClient(discord.Client):
             return
         # Prefix test
         if len(message.content) <= len(Config.BOT_PREFIX) or not message.content.startswith(Config.BOT_PREFIX):
-            # Test if message is in NLP-enabled channel
-            if message.channel.id in Config.NLP_CHANNELS:
+            # Test if chat is enabled and if message is in NLP-enabled channel
+            if self.chat_enabled and message.channel.id in Config.NLP_CHANNELS:
                 # Handle NLP
                 await self.chat_handler.on_message(author, message, message.channel, message.guild)
                 self.log(1, f"Chat message \"{message.content}\" received from {author.display_name}#{author.discriminator}!")
@@ -77,7 +78,7 @@ class BotClient(discord.Client):
 
         # Not found -- unknown command
         if handler is None:
-            await message.add_reaction(Emoji.QUESTION)
+            await self.react_unknown(message)
             return
 
         # Found -- fire handler
@@ -158,6 +159,29 @@ class BotClient(discord.Client):
             handler (ChatHandler): reaction handler
         """
         self.chat_handler = handler
+
+    ##########################
+    # EXPRESS ACTION METHODS #
+    ##########################
+
+    @staticmethod
+    async def reply(reference, content=None, embedded=None, channel=None):
+        assert any([content, embedded]), "Must reply with one or more of {content (string), embedded (embedded message)}!"
+        if channel is None:
+            channel = reference.channel
+        return await channel.send(content=content, embed=embedded, reference=reference, mention_author=False)
+
+    @staticmethod
+    async def react_unknown(message):
+        await message.add_reaction(Emoji.QUESTION)
+
+    @staticmethod
+    async def react_check(message):
+        await message.add_reaction(Emoji.CHECK)
+
+    @staticmethod
+    async def react_cross(message):
+        await message.add_reaction(Emoji.CROSS)
 
     ###################
     # UTILITY METHODS #

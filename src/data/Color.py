@@ -1,1 +1,2 @@
 COLOR_HELP = 0x46eb72
+COLOR_NLP = 0xffc82e
