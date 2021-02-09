@@ -1,25 +1,38 @@
 {
     "greeting": {
         "patterns": [
-            "Hi",
-            "How are you",
-            "Is anyone there?",
             "Hello",
             "Good day",
-            "Whats up",
-            "what's down?"
+            "Good morning",
+            "Good afternoon",
+            "Good evening",
+            "Nice to meet you",
+            "How do you do",
+            "How are things going",
+            "How is everything",
+            "How have you been",
+            "What's good",
+            "How are you",
+            "Hi",
+            "Yo",
+            "Hey",
+            "Howdy"
         ],
         "responses": [
-            "Hello!",
+            "Hello",
             "Good to see you again!",
-            "Hi there, how can I help?"
+            "Hi there"
         ]
     },
     "farewell": {
         "patterns": [
             "cya",
+            "ciao",
+            "Peace",
             "See you later",
             "Goodbye",
+            "Good bye",
+            "Bye",
             "I am Leaving",
             "Have a Good day"
         ],
@@ -27,54 +40,119 @@
             "Bye",
             "See you next time",
             "Talk to you later",
-            "Goodbye!"
+            "Goodbye"
         ]
     },
-    "age": {
+    "identity": {
         "patterns": [
-            "how old",
-            "how old is tim",
-            "what is your age",
-            "how old are you",
-            "age?"
+            "Who are you",
+            "Who might you be",
+            "What is your name",
+            "What's your name",
+            "What should I call you",
+            "Who art thou"
         ],
         "responses": [
-            "I am 18 years old!",
-            "18 years young!"
+            "I'm Professor Pattis",
+            "I'm Pattis, the Python god",
+            "I'm cyber Pattis, nice to meet you"
         ]
     },
-    "name": {
+    "info_regex": {
         "patterns": [
-            "what is your name",
-            "what should I call you",
-            "whats your name?"
+            "What is regular expression",
+            "What's regex",
+            "How does regular expressions work",
+            "regex",
+            "regular expression"
         ],
         "responses": [
-            "You can call me Tim.",
-            "I'm Tim!",
-            "I'm Tim aka Tech With Tim."
+            "Regular Expressions are patterns that we can specify (as strings) and use to search for and replace text in other strings.",
+            "Regular expression patterns match the most number of characters possible in the text; this is called a greedy match.",
+            ""
         ]
     },
-    "shop": {
+    "info_op_ovld": {
         "patterns": [
-            "Id like to buy something",
-            "whats on the menu",
-            "what do you recommend?",
-            "could i get something to eat"
+            "What is operator overloading",
+            "What's operator overloading",
+            "How does operator overloading work",
+            "operator overloading",
+            "overriding default methods",
+            "override operator",
+            "What is polymorphism"
         ],
         "responses": [
-            "We sell chocolate chip cookies for $2!",
-            "Cookies are on the menu!"
+            "How we can write certain class methods that are used by Python in a special way: we typically don't call these methods directly, but instead Python calls them automatically based on our use of []s, operators, keywords, conversion functions, etc.",
+            "Most of these methods (but not all) are invoked by Python operators (whose first arguments are instances of the class that they are defined in) so we call this technique \"operator overloading\"",
+            "It means overloading (giving more than one meaning to) the standard operators, applying to objects constructed from different programmer-defined classes (which really is an application of \"polymorphism\", which translates to \"many forms"
         ]
     },
-    "hours": {
+    "info_iterator": {
         "patterns": [
-            "when are you guys open",
-            "what are your hours",
-            "hours of operation"
+            "What is iterators",
+            "What's iterator",
+            "How does iterators work",
+            "iterator",
+            "custom iterators"
         ],
         "responses": [
-            "We are open 7am-4pm Monday-Friday!"
+            "Iterators are one of the most useful (and used) features in Python.",
+            "Because iterators are used so often, their running times can dominate a program's running time; they can often use little space because (like tuple comprehensions) they produce their values one at a time"
+        ]
+    },
+    "pattis": {
+        "patterns": [
+            "pattis",
+            "richard pattis",
+            "professor pattis",
+            "python",
+            "my code"
+        ],
+        "responses": [
+            "That code seems fine, but can you do it in 1 line?",
+            "These 5 lines of code can be replaced by 1 line of list comprehension",
+            "This data structure is not suitable here",
+            "Go look at my notes again!",
+            "https://i.imgur.com/ZzeuH4a.png",
+            "If you want debugging help, please explore the problem thoroughly before dropping in, and be ready to report on your attempts and failures to solve it when we meet.",
+            "Did you finish programming assignment #3?"
+        ]
+    },
+    "joke": {
+        "patterns": [
+            "tell me a joke",
+            "a funny joke",
+            "make me laugh"
+        ],
+        "responses": [
+            "Your python code is a joke",
+            "There are 10 types of programmers: those who understand binary and those who don't",
+            "https://i.imgur.com/30ZEv1p.png",
+            "When I wrote this code, only God and I understood what it did. Now only god knows",
+            "Why does Python live on land? Because it's above C-level",
+            "I failed my python class because of a late assignment. My homework ate my dog.",
+            "What did the Python say when he came out of his shell? print(\"Hello World!\")",
+            "How did Harry Potter get a job at Google? Because he spoke python.",
+            "Why did the python programmer run into the pole? He couldn't C it.",
+            "Recommend a moving book that made you cry. Introduction to Python Programming",
+            "How many programmers does it take to change a light bulb? None, that's a hardware problem",
+            "Whats the object-oriented way to become wealthy? Inheritance",
+            "What is the most used language in programming? Profanity."
+        ]
+    },
+    "pizza": {
+        "patterns": [
+            "Order pizza",
+            "order me a pizza",
+            "give me pizza",
+            "boi pattis get me a pizza",
+            "pizza time!",
+            "who want pizza?"
+        ],
+        "responses": [
+            "You are telling ME to order pizza?",
+            "Instead of pizza, why don't you work on your programming assignment?"
         ]
     }
 }

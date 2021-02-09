@@ -32,6 +32,15 @@ class ReactionHandler:
         self.expire_time = time.time() + timeout
         self.user_lock = user_lock
 
+        # Extra data that can be attached to this handler manually
+        self.data = None
+
+    def has_data(self):
+        return bool(self.data)
+
+    def set_data(self, data):
+        self.data = data
+
     async def on_react(self, user, emote):
         """
         Called automatically when the emote is added

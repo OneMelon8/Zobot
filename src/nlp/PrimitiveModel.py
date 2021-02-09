@@ -37,10 +37,6 @@ model = None
 model_changed = False
 
 
-# TODO: allow user to train bot by typing in something then classifying it as X intent
-#       NLP preprocessing - NLTK tokenize, stemming
-#       organization intent-utterance
-
 #######################
 # DATA / FILE METHODS #
 #######################
@@ -67,19 +63,21 @@ def generate_data(save_data=True):
     """
     global dictionary, intents, utterances, responses, train_x, train_y
 
-    # Load intents file
+    # Step 1: load data from intents file
     with open(PATH_INTENT) as f:
         data = json.load(f)
 
+    # Reset global variables (in case of re-train)
     dictionary = set()
     intents = []
     utterances = {}
     responses = {}
     train_x, train_y = [], []
 
+    # Step 2: convert intent sentences into token lists
     temp_x, temp_y = [], []
     for intent, intent_data in data.items():
-        # Save intent
+        # Add intent to intent list
         intents.append(intent)
         # Get the list of patterns (utterances) in this intent
         patterns = intent_data["patterns"]
@@ -90,9 +88,9 @@ def generate_data(save_data=True):
             utterances[intent] = utterances.get(intent, []) + [sentence]
             # Preprocess sentence
             words = preprocess(sentence)
-            # Update dictionary
+            # Add words that appear in this sentence into the dictionary
             dictionary.update(words)
-            # Add training data
+            # Add current sentence to training data
             temp_x.append(words)
             temp_y.append(intent)
 
@@ -111,13 +109,21 @@ def generate_data(save_data=True):
     #       compress by only remembering the location of 1's?
     dictionary = sorted(dictionary)
 
-    # Create training data
+    # Step 3: create training data by converting strings into bag of words
     for i, tokens in enumerate(temp_x):
         # TODO: optimize by converting dictionary to dict with {token => index}? O(1) lookup cost
         #       convert back to list afterwards? not sure, just an idea
         #       cause right now the complexity is O(len(tokens) * len(dictionary)) => O(n^2)
+
+        # See bag_of_words method for more details here
         x = [1 if word in tokens else 0 for word in dictionary]
-        y = [0] * len(data)  # how many classes (intents) there are
+
+        # Y is basically an all-zero array but the target intent's index is 1
+        # There should be only one 1 here
+        # Example: target intent is "identity"
+        # - Intents: ["greeting", "farewell", "identity", "age", ...]
+        # - Y array: [         0,          0,          1,     0, ...]
+        y = [0] * len(data)  # len(data) = how many classes (intents) there are
         y[intents.index(temp_y[i])] = 1
         train_x.append(x)
         train_y.append(y)
@@ -169,8 +175,6 @@ def add_utterance(intent, utterance):
     model_changed = True
 
 
-# TODO: RELOAD MODEL AND SET MODEL CHANGED TO FALSE
-
 ##########################
 # NEURAL NETWORK METHODS #
 ##########################
@@ -186,11 +190,14 @@ def create_and_train_model(epochs=1000, save_model=True):
     global model, train_x, train_y
     model = None
 
+    # Build model
     with tf.Graph().as_default():
-        # Build model
+        # Input layer's shape is basically the number of unique words in the dictionary
         net = tflearn.input_data(shape=[None, len(train_x[0])])
         net = tflearn.fully_connected(net, 8)
         net = tflearn.fully_connected(net, 8)
+        # Output layer's shape is basically the number of intents
+        # Softmax activation will output a "confidence" percentage, range=[0, 1]
         net = tflearn.fully_connected(net, len(train_y[0]), activation="softmax")
         net = tflearn.regression(net)
         model = tflearn.DNN(net)
@@ -205,7 +212,7 @@ def create_and_train_model(epochs=1000, save_model=True):
 
 def load_model():
     """ Load model from disk """
-    # TODO: check correctness of this
+    # TODO: check correctness of this cause tflearn is wonk
     global model
     model = tflearn.DNN(None)
     model.load(PATH_MODEL)
@@ -213,22 +220,28 @@ def load_model():
 
 def predict(message):
     """
-    Generate a response from the input message
+    Generate a response from the input message using the model
 
     Args:
         message (str): input message
 
     Returns:
-        str: predicted response
+        Tuple(str, float, Dict[str, float]): (predicted response, confidence, entire result as a dict)
     """
     assert model is not None, "Model must be initialized before predicting!"
-    results = model.predict([bag_of_words(preprocess(message))])[0]
-    index = np.argmax(results)
-    intent = intents[index]
 
-    if results[index] < 0.7:
-        return "I didn't get that, try something else"
-    return random.choice(responses[intent])
+    # Since model uses softmax, results should look something like this:
+    # > [0.003, 0.0001, 0.02, 0.34, 0.09, 0.80, 0.17, ...]
+    # - float in each position representing confidence
+    # - index represent index in the "intents" list (global)
+    results = model.predict([bag_of_words(preprocess(message))])[0]
+
+    # We save the index of the maximum confidence
+    index = np.argmax(results)
+    # Convert index into intent
+    intent = intents[index]
+    # Return a random response of that intent
+    return random.choice(responses[intent]), results[index], {intents[a]: results[a] for a in range(len(results))}
 
 
 ###################
@@ -238,6 +251,12 @@ def predict(message):
 def preprocess(message):
     """
     Preprocesses the message into a list of tokens by tokenizing and stemming
+    e.g.
+        Before: "Why are you flying?"
+        After:  ["why", "are", "you", "fly"]
+
+        Before: "The foxes quickly jumped over the rabbits!"
+        After:  ["the", "fox", "quick", "jump", "over", "the", "rabbit"]
 
     Args:
         message (str): message to preprocess
@@ -245,13 +264,17 @@ def preprocess(message):
     Returns:
         List[str]: list of preprocessed tokens (tokenized and stemmed)
     """
+    # Null check
+    if not message:
+        return []
+
     output = []
     # Tokenize message (split string into small tokens)
     words = nltk.word_tokenize(message)
     for word in words:
         # Stem each word (eg. flying becomes fly after stemming)
         word = stemmer.stem(word)
-        # TODO: apply rules to filter tokens, simple rules for now
+        # TODO: apply rules to filter tokens in the future, simple rules for now
         if word in ",.?!~" or len(word) <= 1:
             continue
         output.append(word)
@@ -260,7 +283,11 @@ def preprocess(message):
 
 def bag_of_words(tokens):
     """
-    Generates a bag-of-words representation of the token list
+    Generates a bag-of-words representation of the token list, uses the global dictionary
+    e.g.
+        Dict:   ["apple", "hello", "orange", "pineapple", "world", "again"]
+        Before: [         "hello",                        "world", "again"]
+        After:  [      0,       1,        0,           0,       1,       1]
 
     Args:
         tokens (List[str]): list of preprocessed tokens (tokenized and stemmed)
@@ -273,7 +300,7 @@ def bag_of_words(tokens):
     # TODO: again, this could be faster with an improved dictionary data structure
     #       Currently O(len(dictionary)), can be improved to O(len(tokens))
     bag = [1 if word in tokens else 0 for word in dictionary]
-    assert len(bag) == len(dictionary), "INVALID BAG-OF-WORDS MODEL! SOMETHING REALLY BAD HAPPENED!"
+    assert len(bag) == len(dictionary), "INVALID BAG-OF-WORDS MODEL! THIS SHOULDN'T HAPPEN! OH NO!"
     return np.array(bag)
 
 
@@ -299,5 +326,5 @@ if __name__ == "__main__":
         if message == "quit":
             break
 
-        response = predict(message)
+        response, confidence, results = predict(message)
         print(response)
